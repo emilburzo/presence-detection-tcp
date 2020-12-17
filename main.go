@@ -23,8 +23,8 @@ const DefaultHostsSeparator = ","      // default hosts separator
 const DefaultCheckDelayPresent = "300" // default check delay when `present` (don't kill the phone's battery)
 const DefaultCheckDelayAbsent = "30"   // default check delay when `absent` (no downside to being faster here)
 
-const StatusPresent = "present"
-const StatusAbsent = "absent"
+const StatusPresent = "present" // at least one host is present on the network
+const StatusAbsent = "absent"   // no host is present on the network
 
 var currentStatus = "unknown" // we don't know what the current state is on startup
 
