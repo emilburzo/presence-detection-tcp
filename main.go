@@ -14,6 +14,7 @@ const EnvPort = "PORT"
 const EnvHosts = "HOSTS"
 const EnvWebhooks = "WEBHOOKS"
 
+const DefaultPort = "1234"
 const DelayWhenPresentSeconds = 5
 const DelayWhenAbsentSeconds = 5
 
@@ -50,7 +51,7 @@ func main() {
 }
 
 func isPresentOnNetwork(host string) bool {
-	address := host + ":" + getEnv(EnvPort)
+	address := host + ":" + getEnv(EnvPort, DefaultPort)
 	conn, err := net.DialTimeout("tcp", address, 5*time.Second)
 	if err != nil {
 		opErr := err.(*net.OpError).Err
@@ -72,14 +73,18 @@ func isPresentOnNetwork(host string) bool {
 }
 
 func getHosts() []string {
-	hosts := getEnv(EnvHosts)
+	hosts := getEnv(EnvHosts, "")
 	return strings.Split(hosts, ",")
 }
 
-func getEnv(key string) string {
+func getEnv(key string, fallback string) string {
 	value, present := os.LookupEnv(key)
 	if !present {
-		log.Fatalf("environment variable `%s` is not defined", key)
+		if fallback == "" {
+			log.Fatalf("environment variable `%s` is not defined", key)
+		} else {
+			return fallback
+		}
 	}
 
 	return value
