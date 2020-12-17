@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -22,7 +23,6 @@ const StatusAbsent = "absent"
 var currentStatus = "unknown"
 
 func main() {
-
 	for {
 		var newStatus string
 		for _, host := range getHosts() {
@@ -53,12 +53,18 @@ func isPresentOnNetwork(host string) bool {
 	address := host + ":" + getEnv(EnvPort)
 	conn, err := net.DialTimeout("tcp", address, 5*time.Second)
 	if err != nil {
-		// connection refused means the device is present
+		opErr := err.(*net.OpError).Err
+		errType := fmt.Sprintf("%T", opErr)
+		if errType == "*os.SyscallError" {
+			// connection refused means the device is present
+			return opErr.(*os.SyscallError).Err.(syscall.Errno) == syscall.ECONNREFUSED
+		}
+
 		// any other error (timeout, no route, ...) means the device is not connected to the network
-		return err.(*net.OpError).Err.(*os.SyscallError).Err.(syscall.Errno) == syscall.ECONNREFUSED
+		return false
 	}
 
-	// mobile phones shouldn't be listening on port 80, but just in case...
+	// mobile phones shouldn't be listening on any ports, but just in case...
 	_ = conn.Close()
 
 	// connection succeeded -> present on network
