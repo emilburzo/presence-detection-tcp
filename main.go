@@ -21,7 +21,7 @@ const EnvCheckDelayAbsent = "CHECK_DELAY_ABSENT"   // delay between checks when 
 const DefaultPort = "1234"             // default port to check
 const DefaultHostsSeparator = ","      // default hosts separator
 const DefaultCheckDelayPresent = "300" // default check delay when `present` (don't kill the phone's battery)
-const DefaultCheckDelayAbsent = "30"   // default check delay when `absent` (no downside to being faster here)
+const DefaultCheckDelayAbsent = "15"   // default check delay when `absent` (no downside to being faster here)
 
 const StatusPresent = "present" // at least one host is present on the network
 const StatusAbsent = "absent"   // no host is present on the network
@@ -43,7 +43,7 @@ func main() {
 
 		if currentStatus != newStatus {
 			log.Printf("changing presence from `%s` to `%s`", currentStatus, newStatus)
-			// todo notify websockets
+			// todo notify webhooks
 			currentStatus = newStatus
 		}
 
@@ -62,11 +62,11 @@ func isPresentOnNetwork(host string) bool {
 		opErr := err.(*net.OpError).Err
 		errType := fmt.Sprintf("%T", opErr)
 		if errType == "*os.SyscallError" {
-			// connection refused means the device is present
+			// only connection refused means the device is present
 			return opErr.(*os.SyscallError).Err.(syscall.Errno) == syscall.ECONNREFUSED
 		}
 
-		// any other error (timeout, no route, ...) means the device is not connected to the network
+		// any other error means the device is not connected to the network
 		return false
 	}
 
