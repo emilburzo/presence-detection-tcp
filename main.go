@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -14,12 +15,13 @@ const EnvPort = "PORT"
 const EnvHosts = "HOSTS"
 const EnvHostsSeparator = "HOSTS_SEPARATOR"
 const EnvWebhooks = "WEBHOOKS"
+const EnvCheckDelayPresent = "CHECK_DELAY_PRESENT"
+const EnvCheckDelayAbsent = "CHECK_DELAY_ABSENT"
 
 const DefaultPort = "1234"
 const DefaultHostsSeparator = ","
-
-const DelayWhenPresentSeconds = 5
-const DelayWhenAbsentSeconds = 5
+const DefaultCheckDelayPresent = "300" // don't kill the phone's battery
+const DefaultCheckDelayAbsent = "30"   // no downside to being faster here
 
 const StatusPresent = "present"
 const StatusAbsent = "absent"
@@ -46,9 +48,9 @@ func main() {
 		}
 
 		if currentStatus == StatusPresent {
-			time.Sleep(DelayWhenPresentSeconds * time.Second)
+			time.Sleep(getDelayWhenPresent() * time.Second)
 		} else {
-			time.Sleep(DelayWhenAbsentSeconds * time.Second)
+			time.Sleep(getDelayWhenAbsent() * time.Second)
 		}
 	}
 }
@@ -78,6 +80,22 @@ func isPresentOnNetwork(host string) bool {
 func getHosts() []string {
 	hosts := getEnv(EnvHosts, "")
 	return strings.Split(hosts, getEnv(EnvHostsSeparator, DefaultHostsSeparator))
+}
+
+func getDelayWhenAbsent() time.Duration {
+	return getDelay(EnvCheckDelayAbsent, DefaultCheckDelayAbsent)
+}
+
+func getDelayWhenPresent() time.Duration {
+	return getDelay(EnvCheckDelayPresent, DefaultCheckDelayPresent)
+}
+
+func getDelay(env string, fallback string) time.Duration {
+	delay, err := strconv.Atoi(getEnv(env, fallback))
+	if err != nil {
+		log.Fatal("invalid delay")
+	}
+	return time.Duration(delay)
 }
 
 func getEnv(key string, fallback string) string {
