@@ -12,9 +12,12 @@ import (
 
 const EnvPort = "PORT"
 const EnvHosts = "HOSTS"
+const EnvHostsSeparator = "HOSTS_SEPARATOR"
 const EnvWebhooks = "WEBHOOKS"
 
 const DefaultPort = "1234"
+const DefaultHostsSeparator = ","
+
 const DelayWhenPresentSeconds = 5
 const DelayWhenAbsentSeconds = 5
 
@@ -74,7 +77,7 @@ func isPresentOnNetwork(host string) bool {
 
 func getHosts() []string {
 	hosts := getEnv(EnvHosts, "")
-	return strings.Split(hosts, ",")
+	return strings.Split(hosts, getEnv(EnvHostsSeparator, DefaultHostsSeparator))
 }
 
 func getEnv(key string, fallback string) string {
