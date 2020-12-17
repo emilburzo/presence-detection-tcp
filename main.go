@@ -11,22 +11,22 @@ import (
 	"time"
 )
 
-const EnvPort = "PORT"
-const EnvHosts = "HOSTS"
-const EnvHostsSeparator = "HOSTS_SEPARATOR"
-const EnvWebhooks = "WEBHOOKS"
-const EnvCheckDelayPresent = "CHECK_DELAY_PRESENT"
-const EnvCheckDelayAbsent = "CHECK_DELAY_ABSENT"
+const EnvPort = "PORT"                             // port to check
+const EnvHosts = "HOSTS"                           // hosts to check
+const EnvHostsSeparator = "HOSTS_SEPARATOR"        // separator between hosts
+const EnvWebhooks = "WEBHOOKS"                     // URLs to POST to
+const EnvCheckDelayPresent = "CHECK_DELAY_PRESENT" // delay between checks when `present`
+const EnvCheckDelayAbsent = "CHECK_DELAY_ABSENT"   // delay between checks when `absent`
 
-const DefaultPort = "1234"
-const DefaultHostsSeparator = ","
-const DefaultCheckDelayPresent = "300" // don't kill the phone's battery
-const DefaultCheckDelayAbsent = "30"   // no downside to being faster here
+const DefaultPort = "1234"             // default port to check
+const DefaultHostsSeparator = ","      // default hosts separator
+const DefaultCheckDelayPresent = "300" // default check delay when `present` (don't kill the phone's battery)
+const DefaultCheckDelayAbsent = "30"   // default check delay when `absent` (no downside to being faster here)
 
 const StatusPresent = "present"
 const StatusAbsent = "absent"
 
-var currentStatus = "unknown"
+var currentStatus = "unknown" // we don't know what the current state is on startup
 
 func main() {
 	for {
